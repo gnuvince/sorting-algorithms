@@ -20,8 +20,8 @@ let make_random_float_array num_elems =
   Array.iteri (fun i _ -> arr.(i) <- (Random.float 1000.0) -. 500.0) arr;
   arr
 
-let _ =
-  let iters = 100 in
+
+let run_benchmark iters max_elems =
   let funcs = [|
                  ("insertion sort", insert_sort_arr);
                  ("bubble sort", bubblesort);
@@ -31,16 +31,16 @@ let _ =
                  ("merge sort + insertion sort", mergesort_arr_mod insert_sort_arr);
                  ("quicksort 1", quicksort);
                  ("quicksort 2", quicksort2);
+                 ("Array.sort", Array.sort compare);
+                 ("Array.stable_sort", Array.stable_sort compare);
               |] in
   let total_times = Array.make (Array.length funcs) 0.0 in
   for i = 1 to iters do
-    let num_elems = Random.int 5000 in
+    let num_elems = Random.int max_elems in
     let arr = make_random_int_array num_elems in
     let arrs = Array.init (Array.length funcs) (fun _ -> Array.copy arr) in
 
     Array.iteri (fun i (_, f) ->
-      Array.iter (Printf.printf "%d ") arrs.(i);
-      print_newline ();
       let (_, t) = time (fun () -> f arrs.(i)) in
       total_times.(i) <- total_times.(i) +. t
     ) funcs;
@@ -54,4 +54,15 @@ let _ =
   Printf.printf "%s\n" (String.make 60 '=');
   Array.iteri (fun i (name, _) ->
     Printf.printf "%-32s: %f\t%f\n" name total_times.(i) (total_times.(i) /. float_of_int iters)
-  ) funcs;
+  ) funcs
+
+let _ =
+  let iters = ref 100 in
+  let max_elems = ref 5000 in
+
+  Arg.parse [
+    ("--iters", Arg.Set_int iters, "number of iterations. default: 100");
+    ("--max-elems", Arg.Set_int max_elems, "maximum number of elements in an array. default: 5000");
+  ] ignore "Usage";
+
+  run_benchmark !iters !max_elems

@@ -3,3 +3,4 @@
 *.cmx
 *.cmi
 _build
+*.native
