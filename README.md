@@ -6,13 +6,13 @@ Implementation of various sorting algorithms in OCaml.
 Compiling
 ---------
 
-$ ocamlbuild -lib unix bench.native
+    $ make
 
 
 Running
 -------
 
-Run bench.native.  Use the --help option to view command line options
+Run `bench.native`.  Use the `--help` option to view command line options.
 
 
 Future work
