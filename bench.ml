@@ -34,11 +34,13 @@ let _ =
               |] in
   let total_times = Array.make (Array.length funcs) 0.0 in
   for i = 1 to iters do
-    let num_elems = Random.int 10000 in
-    let arr = make_random_float_array num_elems in
-    let arrs = Array.make (Array.length funcs) arr in
+    let num_elems = Random.int 5000 in
+    let arr = make_random_int_array num_elems in
+    let arrs = Array.init (Array.length funcs) (fun _ -> Array.copy arr) in
 
     Array.iteri (fun i (_, f) ->
+      Array.iter (Printf.printf "%d ") arrs.(i);
+      print_newline ();
       let (_, t) = time (fun () -> f arrs.(i)) in
       total_times.(i) <- total_times.(i) +. t
     ) funcs;
