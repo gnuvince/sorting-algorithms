@@ -3,6 +3,7 @@ open Selectionsort
 open Mergesort
 open Quicksort
 open Bubblesort
+open Heapsort
 
 let time f =
   let t1 = Unix.gettimeofday () in
@@ -31,6 +32,7 @@ let run_benchmark iters max_elems =
                  ("merge sort + insertion sort", mergesort_arr_mod insert_sort_arr);
                  ("quicksort 1", quicksort);
                  ("quicksort 2", quicksort2);
+                 ("heapsort", heapsort);
                  ("Array.sort", Array.sort compare);
                  ("Array.stable_sort", Array.stable_sort compare);
               |] in
