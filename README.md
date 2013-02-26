@@ -19,5 +19,6 @@ Future work
 -----------
 
 * Add command-line option to select different types of elements (floats, strings)
-* Implement other algorithms (heapsort, timsort, etc.)
+* Add command-line option to generate charts of the running times.
+* Implement other algorithms (timsort, introsort etc.)
 * Add a test suite to make sure that all sorting algorithms are correct
