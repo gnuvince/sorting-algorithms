@@ -11,16 +11,6 @@ let time f =
   let t2 = Unix.gettimeofday () in
   (r, t2 -. t1)
 
-let make_random_int_array num_elems =
-  let arr = Array.make num_elems 0 in
-  Array.iteri (fun i _ -> arr.(i) <- (Random.int 1000)-500) arr;
-  arr
-
-let make_random_float_array num_elems =
-  let arr = Array.make num_elems 0.0 in
-  Array.iteri (fun i _ -> arr.(i) <- (Random.float 1000.0) -. 500.0) arr;
-  arr
-
 
 let run_benchmark iters max_elems =
   let funcs = [|
@@ -39,7 +29,7 @@ let run_benchmark iters max_elems =
   let total_times = Array.make (Array.length funcs) 0.0 in
   for i = 1 to iters do
     let num_elems = Random.int max_elems in
-    let arr = make_random_int_array num_elems in
+    let arr = Utils.make_random_int_array num_elems in
     let arrs = Array.init (Array.length funcs) (fun _ -> Array.copy arr) in
 
     Array.iteri (fun i (_, f) ->
