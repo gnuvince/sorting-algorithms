@@ -1,3 +1,5 @@
+exception Empty
+
 type 'a t = {
   mutable size : int;
   mutable elems : 'a array
@@ -8,6 +10,9 @@ let make_heap init_size sample_element = {size=0;
 
 let parent i = (i-1)/2
 
+(* Add an element to the elems array of a heap; if the
+   array is full, allocate a new array, twice the size,
+   copy the content and add the element to the new array. *)
 let heap_add heap elem =
   if Array.length heap.elems = heap.size then begin
     let new_elems = Array.make (2*heap.size) heap.elems.(0) in
@@ -22,6 +27,8 @@ let swap xs i j =
   xs.(i) <- xs.(j);
   xs.(j) <- t
 
+
+(* Insert an element into the heap. *)
 let insert heap elem =
   heap_add heap elem;
   let i = ref (heap.size-1) in
@@ -30,7 +37,11 @@ let insert heap elem =
     i := parent !i
   done
 
+(* Return the minimal element of a heap, which is the root,
+   take the last element of the heap, put it at the top and
+   let it sink down. *)
 let delete_min heap =
+  (* Find the index of the minimal child. *)
   let min_child i =
     if heap.size > 2*i+2 then
       if heap.elems.(2*i+1) <= heap.elems.(2*i+2) then
@@ -42,6 +53,9 @@ let delete_min heap =
     else
       None
   in
+
+  if heap.size = 0 then
+    raise Empty;
 
   let min_elem = heap.elems.(0) in
   heap.size <- heap.size - 1;
@@ -63,10 +77,4 @@ let delete_min heap =
   min_elem
 
 
-
-let test () =
-  let h = make_heap 1 0 in
-  insert h 3;
-  insert h 5;
-  insert h 1;
-  h
+let size h = h.size
