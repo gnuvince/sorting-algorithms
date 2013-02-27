@@ -5,6 +5,12 @@ open Quicksort
 open Bubblesort
 open Heapsort
 
+type 'a bench_entry = {
+    name : string;
+    fn : ('a array -> unit);
+    mutable time : float
+  }
+
 let time f =
   let t1 = Unix.gettimeofday () in
   let r = f () in
@@ -13,40 +19,41 @@ let time f =
 
 
 let run_benchmark iters max_elems =
-  let funcs = [|
-                 ("insertion sort", insert_sort_arr);
-                 ("bubble sort", bubblesort);
-                 ("selection sort", selection_sort_arr);
-                 ("merge sort", mergesort_arr);
-                 ("merge sort + selection sort", mergesort_arr_mod selection_sort_arr);
-                 ("merge sort + insertion sort", mergesort_arr_mod insert_sort_arr);
-                 ("quicksort 1", quicksort);
-                 ("quicksort 2", quicksort2);
-                 ("heapsort", heapsort);
-                 ("Array.sort", Array.sort compare);
-                 ("Array.stable_sort", Array.stable_sort compare);
-              |] in
-  let total_times = Array.make (Array.length funcs) 0.0 in
+  let bench_entries = [|
+    {name="insertion sort"; fn=insert_sort_arr; time=0.0};
+    {name="bubble sort"; fn=bubblesort; time=0.0};
+    {name="selection sort"; fn=selection_sort_arr; time=0.0};
+    {name="merge sort"; fn=mergesort_arr; time=0.0};
+    {name="merge sort + selection sort"; fn=mergesort_arr_mod selection_sort_arr; time=0.0};
+    {name="merge sort + insertion sort"; fn=mergesort_arr_mod insert_sort_arr; time=0.0};
+    {name="quicksort 1"; fn=quicksort; time=0.0};
+    {name="quicksort 2"; fn=quicksort2; time=0.0};
+    {name="heapsort"; fn=heapsort; time=0.0};
+    {name="Array.sort"; fn=Array.sort compare; time=0.0};
+    {name="Array.stable_sort"; fn=Array.stable_sort compare; time=0.0};
+  |] in
+  let num_entries = Array.length bench_entries in
+
   for i = 1 to iters do
     let num_elems = Random.int max_elems in
     let arr = Utils.make_random_int_array num_elems in
-    let arrs = Array.init (Array.length funcs) (fun _ -> Array.copy arr) in
+    let arrs = Array.init num_entries (fun _ -> Array.copy arr) in
 
-    Array.iteri (fun i (_, f) ->
-      let (_, t) = time (fun () -> f arrs.(i)) in
-      total_times.(i) <- total_times.(i) +. t
-    ) funcs;
+    Array.iteri (fun j b ->
+      let (_, t) = time (fun () -> b.fn arrs.(j)) in
+      b.time <- b.time +. t
+    ) bench_entries;
 
     Printf.printf "\r%6.2f%%" (float_of_int i /. float_of_int iters *. 100.0);
     flush_all ();
   done;
 
-  print_newline ();
-  Printf.printf "%-32s: Total\t\tAverage\n" "Algorithm";
-  Printf.printf "%s\n" (String.make 60 '=');
-  Array.iteri (fun i (name, _) ->
-    Printf.printf "%-32s: %f\t%f\n" name total_times.(i) (total_times.(i) /. float_of_int iters)
-  ) funcs
+  Array.stable_sort (fun a b -> compare a.time b.time) bench_entries;
+  Printf.printf "\r%-36s: %10s \t %10s\n" "Algorithm" "Total" "Average";
+  Printf.printf "%s\n" (String.make 67 '=');
+  Array.iteri (fun i b ->
+    Printf.printf "%2d. %-32s: %10.6f \t %10.6f\n" (i+1) b.name b.time (b.time /. float_of_int iters)
+  ) bench_entries
 
 let _ =
   let iters = ref 100 in
